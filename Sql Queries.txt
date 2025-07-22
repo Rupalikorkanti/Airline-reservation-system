@@ -1,0 +1,159 @@
+CREATE DATABASE AirlineDB;
+USE AirlineDB;
+
+
+CREATE TABLE Flights (
+    FlightID INT PRIMARY KEY AUTO_INCREMENT,
+    Airline VARCHAR(100),
+    Origin VARCHAR(50),
+    Destination VARCHAR(50),
+    DepartureTime DATETIME,
+    ArrivalTime DATETIME,
+    TotalSeats INT
+);
+
+
+
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY AUTO_INCREMENT,
+    FullName VARCHAR(100),
+    Email VARCHAR(100),
+    Phone VARCHAR(15)
+);
+
+
+
+
+CREATE TABLE Seats (
+    SeatID INT PRIMARY KEY AUTO_INCREMENT,
+    FlightID INT,
+    SeatNumber VARCHAR(5),
+    IsBooked BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (FlightID) REFERENCES Flights(FlightID) ON DELETE CASCADE
+);
+
+
+
+
+CREATE TABLE Bookings (
+    BookingID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    FlightID INT,
+    SeatID INT,
+    BookingDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Status ENUM('CONFIRMED', 'CANCELLED') DEFAULT 'CONFIRMED',
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (FlightID) REFERENCES Flights(FlightID),
+    FOREIGN KEY (SeatID) REFERENCES Seats(SeatID)
+);
+
+
+
+INSERT INTO Flights (Airline, Origin, Destination, DepartureTime, ArrivalTime, TotalSeats)
+VALUES
+('IndiGo', 'Delhi', 'Mumbai', '2025-07-10 10:00:00', '2025-07-10 12:00:00', 150),
+('Air India', 'Mumbai', 'Chennai', '2025-07-11 14:00:00', '2025-07-11 16:30:00', 120);
+
+
+
+
+
+
+INSERT INTO Customers (FullName, Email, Phone)
+VALUES
+('Alice Johnson', 'alice@mail.com', '9876543210'),
+('Bob Singh', 'bob@mail.com', '9123456780');
+
+
+
+
+
+
+INSERT INTO Seats (FlightID, SeatNumber)
+SELECT 1, CONCAT('A', n) FROM (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) AS nums;
+SELECT * FROM Flights
+WHERE Origin = 'Delhi' AND Destination = 'Mumbai';
+SELECT SeatNumber FROM Seats
+WHERE FlightID = 1 AND IsBooked = FALSE;
+
+
+-- Mark seat as booked
+UPDATE Seats SET IsBooked = TRUE WHERE SeatID = 3;
+
+
+-- Create booking
+INSERT INTO Bookings (CustomerID, FlightID, SeatID)
+ VALUES (1, 1, 3);
+ 
+DELIMITER $$
+
+CREATE TRIGGER after_booking_cancel
+AFTER UPDATE ON Bookings
+FOR EACH ROW
+BEGIN
+  IF NEW.Status = 'CANCELLED' THEN
+    UPDATE Seats SET IsBooked = FALSE WHERE SeatID = NEW.SeatID;
+  END IF;
+END$$
+
+DELIMITER ;
+
+CREATE VIEW AvailableFlights AS
+SELECT f.FlightID, f.Airline, f.Origin, f.Destination, f.DepartureTime, s.SeatNumber
+FROM Flights f
+JOIN Seats s ON f.FlightID = s.FlightID
+WHERE s.IsBooked = FALSE;
+
+
+SELECT
+    b.BookingID,
+    c.FullName AS Customer,
+    f.Airline,
+    f.Origin,
+    f.Destination,
+    s.SeatNumber,
+    b.BookingDate,
+    b.Status
+FROM Bookings b
+JOIN Customers c ON b.CustomerID = c.CustomerID
+JOIN Flights f ON b.FlightID = f.FlightID
+JOIN Seats s ON b.SeatID = s.SeatID
+ORDER BY b.BookingDate DESC;
+
+SELECT
+    b.BookingID,
+    c.FullName AS Customer,
+    f.Airline,
+    f.Origin,
+    f.Destination,
+    s.SeatNumber,
+    b.BookingDate,
+    b.Status
+FROM Bookings b
+JOIN Customers c ON b.CustomerID = c.CustomerID
+JOIN Flights f ON b.FlightID = f.FlightID
+JOIN Seats s ON b.SeatID = s.SeatID
+ORDER BY b.BookingDate DESC;
+
+
+SELECT * FROM Seats WHERE FlightID = 1;
+
+-- Example: Adding 5 seats for Flight ID 1
+INSERT INTO Seats (FlightID, SeatNumber, IsBooked) VALUES
+(1, 'A1', 0),
+(1, 'A2', 0),
+(1, 'A3', 0),
+(1, 'B1', 0),
+(1, 'B2', 0);
+
+-- Similarly for Flight ID 2
+INSERT INTO Seats (FlightID, SeatNumber, IsBooked) VALUES
+(2, 'C1', 0),
+(2, 'C2', 0),
+(2, 'C3', 0);
+
+
+
+
