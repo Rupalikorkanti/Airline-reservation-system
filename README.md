@@ -4,7 +4,7 @@
 A complete airline reservation system built with Python Tkinter and MySQL database. This project demonstrates database management, GUI development, and system integration.
 
 
-📋 Project Overview
+📋 -Project Overview
 
 This airline reservation system allows users to:
 •	View available flights
@@ -12,7 +12,9 @@ This airline reservation system allows users to:
 •	Make seat reservations
 •	Manage customer information
 •	Track booking status
-🛠️ Technology Stack
+
+
+🛠️- Technology Stack
 •	Frontend: Python Tkinter GUI
 •	Backend: MySQL Database
 •	Language: Python 3.x
