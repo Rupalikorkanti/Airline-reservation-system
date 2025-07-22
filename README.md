@@ -19,14 +19,6 @@ This airline reservation system allows users to:
 •	Database Connector: mysql-connector-python
 
 
-📁 Project Structure
-
-airline-reservation-system/
-├── airline_gui.py          # Main GUI application
-├── airline_database.sql    # Database schema and sample data
-└── README.md              # Project documentation
-
-
 
 Step 1: Install Dependencies
 bash
